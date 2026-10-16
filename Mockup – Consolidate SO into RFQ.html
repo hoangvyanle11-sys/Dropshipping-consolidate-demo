@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup – Consolidate SO into RFQ</title>
+<style>
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --surface-2:#f6f7f9; --text:#1f2430; --muted:#6b7280; --border:#dfe2e8;
+  --primary:#71639e; --primary-ink:#ffffff; --primary-soft:#ece9f5; --header:#71639e; --header-ink:#ffffff; --neutral:#d0402f;
+  --ok:#1f8a4c; --ok-soft:#dcf2e4; --warn:#9a6700; --warn-soft:#fff3cd; --danger:#c0392b; --danger-soft:#fbe3e0; --info-soft:#e3eefc; --info:#1d5fae;
+  --t1-bg:#fde3cf; --t1:#b4570b; --t2-bg:#e4dcf2; --t2:#5b4a8f; --t3-bg:#d3eef1; --t3:#1b7480;
+  --sel:#efecf7;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#181a21; --surface:#22252e; --surface-2:#2a2e38; --text:#e6e8ee; --muted:#9aa1ad; --border:#383d49;
+    --primary:#9a8cd0; --primary-ink:#15131d; --primary-soft:#322d47; --header:#3b3456; --header-ink:#f1eefb; --neutral:#8e2a20;
+    --ok:#5cc98a; --ok-soft:#1d3a2a; --warn:#e8b949; --warn-soft:#3b3115; --danger:#f08273; --danger-soft:#43221e; --info-soft:#1d2d44; --info:#8ab8f2;
+    --t1-bg:#43301f; --t1:#f2a865; --t2-bg:#332b47; --t2:#bfb0ee; --t3-bg:#173a3e; --t3:#7fd2dc;
+    --sel:#2d2840;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#181a21; --surface:#22252e; --surface-2:#2a2e38; --text:#e6e8ee; --muted:#9aa1ad; --border:#383d49;
+  --primary:#9a8cd0; --primary-ink:#15131d; --primary-soft:#322d47; --header:#3b3456; --header-ink:#f1eefb; --neutral:#8e2a20;
+  --ok:#5cc98a; --ok-soft:#1d3a2a; --warn:#e8b949; --warn-soft:#3b3115; --danger:#f08273; --danger-soft:#43221e; --info-soft:#1d2d44; --info:#8ab8f2;
+  --t1-bg:#43301f; --t1:#f2a865; --t2-bg:#332b47; --t2:#bfb0ee; --t3-bg:#173a3e; --t3:#7fd2dc;
+  --sel:#2d2840;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--neutral)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);margin:0;vertical-align:middle;cursor:pointer}
+input[type=checkbox]:disabled{cursor:default}
+
+/* chrome */
+.chrome{position:sticky;top:env(safe-area-inset-top,0px);z-index:30}
+.neutral{background:var(--neutral);color:#fff;text-align:center;font-size:15px;padding:4px 8px}
+.topbar{background:var(--header);color:var(--header-ink);display:flex;align-items:center;gap:4px;padding:0 12px;height:48px}
+.topbar .appsbtn{background:none;border:0;color:var(--header-ink);padding:8px;cursor:pointer;display:flex;border-radius:4px}
+.topbar .appsbtn:hover,.topbar nav button:hover{background:rgba(255,255,255,.1)}
+.topbar .appname{font-size:18px;margin:0 10px 0 4px;white-space:nowrap}
+.topbar nav{display:flex;overflow-x:auto}
+.topbar nav button{background:none;border:0;color:var(--header-ink);padding:13px 10px;cursor:pointer;white-space:nowrap;font-size:15px;opacity:.95}
+.topbar .spacer{flex:1}
+.topbar .sys{display:flex;align-items:center;gap:14px;font-size:14px;white-space:nowrap}
+.topbar .sys svg{width:18px;height:18px}
+.avatar{width:30px;height:30px;border-radius:4px;background:#7cb342;color:#fff;display:grid;place-items:center;font-weight:600}
+@media (max-width:700px){.topbar nav,.topbar .sys .hide-sm{display:none}}
+.dropdown{position:relative}
+.menu{position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:240px;padding:4px 0;z-index:40}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:7px 16px;cursor:pointer;white-space:nowrap}
+.menu button:hover{background:var(--surface-2)}
+.menu hr{border:0;border-top:1px solid var(--border);margin:4px 0}
+.menu .app-ico{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+
+/* control panel */
+.cp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+@media (max-width:820px){.cp{grid-template-columns:1fr}.cp-right{justify-self:start}}
+.cp-left{display:flex;align-items:center;gap:10px;min-width:0}
+.cp-title{font-size:18px}
+.kebab{background:none;border:0;cursor:pointer;padding:4px 6px;font-size:18px;line-height:1;color:var(--text)}
+.btn-group{display:flex}
+.btn-group .btn:first-child{border-radius:4px 0 0 4px}
+.btn-group .btn:last-child{border-radius:0 4px 4px 0;border-left:1px solid rgba(255,255,255,.25);padding:6px 8px}
+.cp-mid{display:flex;justify-content:center;min-width:0}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:20px;padding:4px 12px;width:min(500px,100%);background:var(--surface)}
+.search svg{width:16px;height:16px;color:var(--muted);flex:none}
+.search input{border:0;background:transparent;flex:1;min-width:60px;outline:none}
+.facet{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 4px 1px 0;font-size:13.5px;white-space:nowrap}
+.facet .fi{background:var(--primary);color:var(--primary-ink);border-radius:3px 0 0 3px;padding:2px 5px;display:flex}
+.facet .fi svg{width:12px;height:12px;color:var(--primary-ink)}
+.facet button{background:none;border:0;cursor:pointer;padding:0 4px;color:var(--muted)}
+.selbar{display:flex;align-items:center;gap:8px}
+.views{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.views button{background:var(--surface);border:0;border-left:1px solid var(--border);padding:7px 12px;cursor:pointer;display:flex}
+.views button:first-child{border-left:0}
+.views button.on{background:var(--primary-soft)}
+.views svg{width:16px;height:16px}
+.crumbs{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.crumbs .root{color:var(--primary);cursor:pointer;font-size:13px;background:none;border:0;padding:0;text-align:left}
+.crumbs .cur{font-size:16px;display:flex;align-items:center;gap:6px}
+
+.btn{border:1px solid var(--border);background:var(--surface-2);padding:6px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(.97)}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink);font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-link{background:none;border:0;color:var(--primary);cursor:pointer;padding:4px 0}
+.link{color:var(--primary);cursor:pointer;background:none;border:0;padding:0;text-align:left}
+
+/* dashboard */
+.dash{display:flex;gap:16px;align-items:stretch;justify-content:space-between;padding:12px 16px 4px;flex-wrap:wrap}
+.tiles{display:flex;gap:8px;flex-wrap:wrap}
+.tile{border:0;border-radius:4px;padding:8px 16px;min-width:130px;text-align:center;cursor:default;line-height:1.25}
+.tile b{display:block;font-size:18px}
+.tile.t1{background:var(--t1-bg)} .tile.t1 b{color:var(--t1)}
+.tile.t2{background:var(--t2-bg)} .tile.t2 b{color:var(--t2)}
+.tile.t3{background:var(--t3-bg)} .tile.t3 b{color:var(--t3)}
+.stats{display:flex;align-items:center;gap:24px;border:1px solid var(--border);border-radius:6px;padding:8px 18px;background:var(--surface)}
+.stats .period{display:flex;align-items:center;gap:8px;padding-right:24px;border-right:1px solid var(--border)}
+.stats .period svg{width:16px;height:16px}
+.stats .k{line-height:1.25}
+.stats .k b{display:block;font-size:18px;font-weight:600}
+.stats .k b span{font-size:13px;color:var(--muted);font-weight:400}
+
+/* list */
+.list{background:var(--surface);position:relative}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl .num{text-align:right;white-space:nowrap}
+.tbl .center{text-align:center}
+.tbl .cb{width:40px;padding-left:16px}
+.tbl .cb label{display:block;cursor:pointer}
+.tbl tr.section td{background:var(--surface-2);font-weight:600;padding:6px 10px}
+.tbl tr.section td .sub{font-weight:400;color:var(--muted)}
+.tbl input[type=number]{width:70px;text-align:right}
+.clickable tbody tr{cursor:pointer}
+.clickable tbody tr:hover td{background:var(--surface-2)}
+.clickable tbody tr.selected td{background:var(--sel)}
+.tbl select,.tbl input:not([type=checkbox]),.f select{width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;padding:3px 2px}
+.tbl select:focus,.tbl input:focus,.f select:focus{border-bottom-color:var(--primary);outline:none}
+.sample{min-height:540px;overflow:hidden}
+.sample tbody{opacity:.16;pointer-events:none;user-select:none}
+.helper{position:absolute;left:50%;top:90px;transform:translateX(-50%);text-align:center;width:min(580px,92%)}
+.helper h2{font-size:22px;margin:22px 0 6px;font-weight:600}
+.helper p{margin:0;font-size:15px}
+.art{height:240px;border-radius:10px;background:linear-gradient(120deg,#d9d6de,#c7c4cc 60%,#e8e6eb 60%);position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.art .paper{position:absolute;width:150px;height:200px;background:#fbfbfb;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);left:50px;top:24px;transform:rotate(-8deg)}
+.art .paper.p2{left:78px;top:30px;transform:rotate(3deg)}
+.art .paper.p2::before{content:"";position:absolute;left:14px;right:14px;top:22px;height:10px;background:#d8d5dc;border-radius:2px;box-shadow:0 18px 0 #e6e3ea,0 34px 0 #e6e3ea}
+.art .paper.p2::after{content:"";position:absolute;left:14px;right:14px;bottom:20px;height:70px;background:#8a8580;border-radius:2px}
+.art .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.art .play::after{content:"";border-left:22px solid #8a8591;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.art .cap{position:absolute;right:34px;top:84px;font-size:22px;font-style:italic;color:#2b2b2b;text-align:left;line-height:1.25;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive}
+
+/* form */
+.actions-bar{display:flex;align-items:center;gap:6px;padding:10px 16px;flex-wrap:wrap}
+.statusbar{margin-left:auto;display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface)}
+.statusbar span{padding:6px 14px;color:var(--muted);font-size:13.5px;white-space:nowrap}
+.statusbar span.on{background:var(--primary-soft);color:var(--text);font-weight:600}
+.smart{display:flex;flex-wrap:wrap;justify-content:center}
+.smart button{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:4px 14px;cursor:pointer;min-width:110px;text-align:left;line-height:1.15}
+.smart button+button{border-left:0}
+.smart button:hover{background:var(--surface-2)}
+.smart small{display:block;font-weight:600;color:var(--text)}
+.smart svg{width:20px;height:20px;color:var(--muted)}
+.sheet{background:var(--surface);border:1px solid var(--border);margin:0 16px 16px;padding:20px 24px;border-radius:4px}
+.sheet h1{font-size:28px;margin:0 0 14px;font-weight:600}
+.sheet .kicker{font-size:15px;margin:0}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:6px 40px;margin-bottom:18px}
+@media (max-width:700px){.fields{grid-template-columns:1fr}}
+.f{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px;align-items:baseline;padding:3px 0}
+.f label{font-weight:600}
+.f label sup{color:var(--info);font-weight:600;margin-left:2px;cursor:help}
+.f .val{min-width:0}
+.f .val .sub{color:var(--muted);display:block}
+.tabs{display:flex;border-bottom:1px solid var(--border)}
+.tabs span{padding:8px 16px;border:1px solid var(--border);border-bottom:0;border-radius:4px 4px 0 0;background:var(--surface);margin-bottom:-1px;font-weight:500}
+.tabs span.off{border-color:transparent;color:var(--primary);background:none}
+.tax{display:inline-block;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:0 8px;font-size:12px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.badge{display:inline-block;border-radius:10px;padding:1px 9px;font-size:12.5px;font-weight:500;white-space:nowrap;background:var(--surface-2);border:1px solid var(--border)}
+.badge.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.badge.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.badge.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.badge.pri{background:var(--primary-soft);color:var(--text);border-color:transparent}
+.totals{display:flex;justify-content:flex-end;margin-top:12px}
+.totals table td{padding:3px 10px;text-align:right}
+.totals .grand td{font-weight:700;font-size:15px;border-top:1px solid var(--border);padding-top:6px}
+.addline{display:flex;gap:16px;padding:8px 10px}
+.banner{margin:0 16px 12px;padding:10px 14px;border-radius:4px;border-left:4px solid var(--info);background:var(--info-soft);font-size:13.5px}
+.banner.ok{border-color:var(--ok);background:var(--ok-soft)}
+.banner.warn{border-color:var(--warn);background:var(--warn-soft)}
+.banner b{font-weight:600}
+.trackbox{border:1px dashed var(--border);border-radius:6px;padding:12px 14px;margin:6px 0 18px;background:var(--surface-2)}
+.trackbox h3{margin:0 0 8px;font-size:14px}
+.trackbox .row{display:grid;grid-template-columns:160px minmax(0,1fr) auto;gap:10px;align-items:end}
+@media (max-width:700px){.trackbox .row{grid-template-columns:1fr}}
+.trackbox label{font-size:12px;color:var(--muted);display:block}
+.trackbox select,.trackbox input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:4px;padding:6px 8px}
+.hint{font-size:12.5px;color:var(--warn);margin-top:8px}
+.hint.ok{color:var(--ok)}
+.empty{padding:56px 16px;text-align:center;color:var(--muted)}
+.empty p{margin:0 0 14px;font-size:15px;color:var(--text)}
+
+/* modal + toast */
+.backdrop{position:fixed;inset:0;background:rgba(10,10,20,.45);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:60px 16px 16px;overflow:auto}
+.modal{background:var(--surface);border-radius:6px;max-width:720px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);overflow:hidden}
+.modal.sm{max-width:500px}
+.modal header{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:500;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+.modal header button{background:none;border:0;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.modal .body{padding:16px 18px}
+.modal .body p{margin:0 0 10px}
+.modal ul.notes{margin:12px 0 0;padding-left:18px;font-size:13.5px}
+.modal ul.notes li{margin:3px 0}
+.vtbl tbody tr{cursor:pointer}
+.vtbl tbody tr:hover td{background:var(--surface-2)}
+.vtbl tbody tr.on td{background:var(--sel)}
+.vtbl input[type=radio]{accent-color:var(--primary);width:16px;height:16px;margin:0;cursor:pointer}
+.vendor-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:1px dashed var(--border);padding:2px 0;cursor:pointer;color:var(--text);text-align:left}
+.vendor-btn:hover{border-bottom-color:var(--primary);color:var(--primary)}
+.vendor-btn svg{width:13px;height:13px;color:var(--muted)}
+.warn-txt{color:var(--warn);font-size:12px}
+.modal dl{display:grid;grid-template-columns:140px 1fr;gap:4px 10px;margin:10px 0 14px}
+.modal dt{color:var(--muted)}
+.modal dd{margin:0;font-weight:500}
+.modal footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+#toasts{position:fixed;right:16px;top:calc(100px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:8px;z-index:60;max-width:min(400px,calc(100vw - 32px))}
+.toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--ok);border-radius:4px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);font-size:13.5px;animation:tin .2s ease-out}
+.toast.err{border-left-color:var(--danger)}
+.toast.info{border-left-color:var(--info)}
+@keyframes tin{from{transform:translateX(8px);opacity:0}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="chrome">
+  <div class="neutral">Database neutralized for testing: no emails sent, etc.</div>
+  <header class="topbar" id="topbar"></header>
+</div>
+<main id="main"></main>
+<div id="modal"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- master data ---------- */
+const VENDORS = {
+  eng:{id:'eng', name:'ENGLAND, INC./ Creek Side', short:'ENGLAND'},
+  fab:{id:'fab', name:'FABRICUT INC.', short:'FABRICUT'},
+  kra:{id:'kra', name:'KRAVET INC.', short:'KRAVET'},
+  hfc:{id:'hfc', name:'HICKORY FURNITURE CO.', short:'HICKORY'}
+};
+const PRODUCTS = [
+  {id:'p1', name:'[Fabric] 14 YARDS PORTICO BUTTERSCOTCH', route:'dropship', price:420,
+    vendors:[{v:'eng', onHand:42, cost:265, lead:5},{v:'kra', onHand:15, cost:252, lead:9},{v:'fab', onHand:0, cost:248, lead:14}]},
+  {id:'p2', name:'[Sofa] CREEK SIDE 3-SEAT SECTIONAL', route:'dropship', price:2890,
+    vendors:[{v:'eng', onHand:6, cost:1850, lead:21},{v:'hfc', onHand:2, cost:1790, lead:28}]},
+  {id:'p3', name:'[Chair] ACCENT CHAIR - OATMEAL', route:'dropship', price:760,
+    vendors:[{v:'eng', onHand:18, cost:480, lead:10},{v:'hfc', onHand:0, cost:455, lead:30}]},
+  {id:'p4', name:'[Fabric] 10 YARDS VELVET NAVY', route:'dropship', price:310,
+    vendors:[{v:'fab', onHand:60, cost:190, lead:4},{v:'kra', onHand:25, cost:198, lead:6}]},
+  {id:'p5', name:'[Decor] THROW PILLOW 20" - IVORY', route:'stock', price:45, vendors:[]}
+];
+const MEMBERS = [
+  {id:'m1', name:'#1 Brooklyn Furniture', city:'Brooklyn NY'},
+  {id:'m2', name:'#2 Queens Home Decor', city:'Queens NY'},
+  {id:'m3', name:'#3 Hudson Valley Interiors', city:'Poughkeepsie NY'},
+  {id:'m4', name:'#4 Shoreline Living', city:'Asbury Park NJ'}
+];
+const APPS = {
+  sales:{name:'Sales', color:'#e46f78', menus:[['Orders','nav-sales'],['Products'],['Reporting'],['Configuration']]},
+  purchase:{name:'Purchase', color:'#5b8fd6', menus:[['Orders','nav-purchase'],['Products'],['Reporting'],['Configuration']]},
+  pick:{name:'Inventory', color:'#e9a23b', menus:[['Overview'],['Operations','nav-pick'],['Products'],['Reporting'],['Configuration']]}
+};
+const TAX = 0.06, CUTOFF_HOUR = 17;
+const prod = id => PRODUCTS.find(p=>p.id===id);
+const mem  = id => MEMBERS.find(m=>m.id===id);
+const ven  = id => VENDORS[id];
+const vinfo = (pid, v) => prod(pid).vendors.find(x=>x.v===v);
+
+/* ---------- state (resets on reload) ---------- */
+let S = {soSeq:53, poSeq:22, dsSeq:4, uid:1, sos:[], rfqs:[], picks:[],
+  view:{app:'sales', screen:'list', id:null, filter:null}, sel:[], menu:null, vpick:null};
+const nid = () => 'x' + (S.uid++);
+const soById = id => S.sos.find(s=>s.id===id);
+const rfqById = id => S.rfqs.find(r=>r.id===id);
+const pickById = id => S.picks.find(p=>p.id===id);
+const isOpen = r => r.state==='draft';
+const pad = (n,w) => String(n).padStart(w,'0');
+const isDs = l => !!(l.pid && prod(l.pid).route==='dropship');
+const hasDs = so => so.lines.some(isDs);
+const pendingDs = so => so.lines.some(l=>isDs(l) && !l.po);
+const soVendors = so => [...new Set(so.lines.filter(l=>isDs(l) && l.vendor).map(l=>ven(l.vendor).short))];
+const newLine = () => ({pid:'', vendor:null, qty:1, delivered:0, po:null});
+
+/* ---------- formatting ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = n => '$ ' + n.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const num = n => n.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const dt = t => new Date(t).toLocaleString('en-US',{month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+const plural = (n, w) => `${n} ${w}${n===1?'':'s'}`;
+function cutoffFor(t){ const d = new Date(t), c = new Date(t); c.setHours(CUTOFF_HOUR,0,0,0); if(d >= c) c.setDate(c.getDate()+1); return c.getTime(); }
+const soUntaxed = so => so.lines.reduce((a,l)=> a + (l.pid ? prod(l.pid).price*l.qty : 0), 0);
+const rfqTotal = r => r.lines.reduce((a,l)=> a + l.price*l.qty, 0);
+const rfqSoIds = r => [...new Set(r.lines.map(l=>l.soId))];
+function soDelivery(so){
+  if(so.state!=='sale') return null;
+  const ls = so.lines.filter(l=>isDs(l) && l.po); if(!ls.length) return null;
+  const tot = ls.reduce((a,l)=>a+l.qty,0), del = ls.reduce((a,l)=>a+(l.delivered||0),0);
+  if(del===0) return ['Waiting','info']; if(del>=tot) return ['Fully Delivered','ok']; return ['Partially Delivered','warn'];
+}
+function toast(msg, kind='ok'){
+  const el = document.createElement('div'); el.className = 'toast ' + (kind==='ok'?'':kind); el.innerHTML = msg;
+  document.getElementById('toasts').appendChild(el); setTimeout(()=>el.remove(), 5000);
+}
+
+/* ---------- icons ---------- */
+const I = {
+  grid:'<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="3" cy="3" r="2"/><circle cx="9" cy="3" r="2"/><circle cx="15" cy="3" r="2"/><circle cx="3" cy="9" r="2"/><circle cx="9" cy="9" r="2"/><circle cx="15" cy="9" r="2"/><circle cx="3" cy="15" r="2"/><circle cx="9" cy="15" r="2"/><circle cx="15" cy="15" r="2"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  filter:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+  kanban:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16"/><path d="M9 4v10M15 4v6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  pivot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/></svg>',
+  graph:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="3" height="8"/><rect x="10" y="6" width="3" height="14"/><rect x="16" y="9" width="3" height="11"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H9l-5 4z"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7"/><circle cx="6" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>',
+  dollar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M16 7c0-1.7-1.8-3-4-3s-4 1.3-4 3 1.8 2.5 4 3 4 1.3 4 3-1.8 3-4 3-4-1.3-4-3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
+};
+const smartBtn = (icon, label, count, act, extra='') => `<button data-act="${act}" ${extra}>${I[icon]}<span><span class="small muted">${label}</span><small>${count}</small></span></button>`;
+const statusbar = (steps, on) => `<div class="statusbar">${steps.map(s=>`<span class="${s===on?'on':''}">${s}</span>`).join('')}</div>`;
+const viewSwitcher = () => `<div class="views" aria-label="Views">${[['list','List'],['kanban','Kanban'],['cal','Calendar'],['pivot','Pivot'],['graph','Graph'],['clock','Activity']].map(([v,l],i)=>`<button class="${i===0?'on':''}" data-act="${i===0?'none':'noop'}" aria-label="${l}">${I[v]}</button>`).join('')}</div>`;
+const searchBox = (facet, clearAct) => `<div class="search">${I.search}${facet?`<span class="facet"><span class="fi">${I.filter}</span>${facet}<button data-act="${clearAct||'noop'}" aria-label="Remove filter">✕</button></span>`:''}<input placeholder="Search..." aria-label="Search"></div>`;
+
+/* ---------- top bar ---------- */
+function viewTopbar(){
+  const app = APPS[S.view.app];
+  const apps = S.menu==='apps' ? `<div class="menu">${Object.entries(APPS).map(([k,a])=>`<button data-act="nav-${k}"><span class="app-ico" style="background:${a.color}">${a.name[0]}</span>${a.name}</button>`).join('')}</div>` : '';
+  return `<div class="dropdown"><button class="appsbtn" data-act="toggle-menu" data-menu="apps" aria-label="Apps">${I.grid}</button>${apps}</div>
+  <span class="appname">${app.name}</span>
+  <nav>${app.menus.map(m=>`<button data-act="${m[1]||'noop'}">${m[0]}</button>`).join('')}</nav>
+  <div class="spacer"></div>
+  <div class="sys"><span class="hide-sm">${I.chat}</span><span class="hide-sm">${I.clock}</span><span>FTS</span><span class="avatar">E</span></div>`;
+}
+
+/* ---------- business actions ---------- */
+function newSO(){
+  const so = {id:nid(), name:'S'+pad(S.soSeq++,5), customer:'', lines:[newLine()], state:'draft', date:Date.now(), poIds:[]};
+  S.sos.push(so); return so;
+}
+function discardIfEmpty(){
+  const v = S.view; if(v.app!=='sales' || v.screen!=='form') return;
+  const so = soById(v.id);
+  if(so && so.state==='draft' && !so.customer && !so.lines.some(l=>l.pid)){
+    S.sos = S.sos.filter(s=>s!==so);
+    if(so.name==='S'+pad(S.soSeq-1,5)) S.soSeq--;
+  }
+}
+function confirmSO(so){
+  if(!so.customer){ toast('Select a customer before confirming.','err'); return false; }
+  so.lines = so.lines.filter(l=>l.pid && l.qty>0);
+  if(!so.lines.length){ so.lines=[newLine()]; toast('Add at least one product.','err'); return false; }
+  if(so.lines.some(l=>isDs(l) && !l.vendor)){ toast('Select a vendor for every dropship line.','err'); return false; }
+  so.state = 'sale'; so.date = Date.now();
+  toast(hasDs(so) ? `<b>${so.name}</b> confirmed. Its dropship lines are waiting for an RFQ: select the order in the list, open ⚙ Actions and choose Consolidate SO into RFQ.` : `<b>${so.name}</b> confirmed.`);
+  return true;
+}
+function planConsolidation(ids){
+  const sos = ids.map(soById).filter(Boolean);
+  const plan = {
+    noDs: sos.filter(s=>!hasDs(s)),
+    done: sos.filter(s=>hasDs(s) && !pendingDs(s)),
+    valid: sos.filter(s=>pendingDs(s))
+  };
+  plan.noCustomer = plan.valid.filter(s=>!s.customer);
+  plan.noVendor = plan.valid.filter(s=>s.lines.some(l=>isDs(l) && !l.po && !l.vendor));
+  plan.toConfirm = plan.valid.filter(s=>s.state==='draft');
+  const g = {};
+  plan.valid.forEach(so=> so.lines.forEach(l=>{
+    if(!isDs(l) || l.po || !l.vendor) return;
+    const v = l.vendor;
+    g[v] = g[v] || {vendor:v, rfq:S.rfqs.find(r=>r.vendor===v && isOpen(r)), sos:[], lines:[]};
+    if(!g[v].sos.includes(so)) g[v].sos.push(so);
+    g[v].lines.push({so, l});
+  }));
+  plan.groups = Object.values(g);
+  return plan;
+}
+function doConsolidate(ids){
+  const plan = planConsolidation(ids);
+  plan.toConfirm.forEach(so=>{ so.state='sale'; so.date=Date.now(); so.lines = so.lines.filter(l=>l.pid && l.qty>0); });
+  const touched = [];
+  plan.groups.forEach(gr=>{
+    let r = S.rfqs.find(x=>x.vendor===gr.vendor && isOpen(x));
+    if(!r){ r = {id:nid(), name:'P'+pad(S.poSeq++,5), vendor:gr.vendor, state:'draft', created:Date.now(), cutoff:cutoffFor(Date.now()), lines:[]}; S.rfqs.push(r); }
+    gr.lines.forEach(({so,l})=>{
+      r.lines.push({pid:l.pid, qty:l.qty, price:vinfo(l.pid,l.vendor).cost, soId:so.id, member:so.customer});
+      l.po = r.id; if(!so.poIds.includes(r.id)) so.poIds.push(r.id);
+    });
+    touched.push(r);
+  });
+  S.sel = [];
+  closeModal();
+  toast(`Consolidated ${plan.valid.length} ${plan.valid.length===1?'order':'orders'} into ${touched.map(r=>`<b>${r.name}</b>`).join(', ')}. The RFQ stays in draft.`);
+  touched.length===1 ? go('purchase','form',touched[0].id) : go('purchase','list',null,{ids:touched.map(r=>r.id)});
+}
+function confirmPO(r){
+  r.state = 'purchase'; r.confirmed = Date.now();
+  const bySo = {};
+  r.lines.forEach(l=>{ (bySo[l.soId] = bySo[l.soId] || []).push(l); });
+  const names = [];
+  Object.keys(bySo).forEach(soId=>{
+    const so = soById(soId);
+    const p = {id:nid(), name:'DS/'+pad(S.dsSeq++,5), poId:r.id, soId, member:so.customer, vendor:r.vendor,
+      lines:bySo[soId].map(l=>({pid:l.pid, qty:l.qty})), state:'ready', carrier:'', tracking:'', scheduled:Date.now()+3*86400000};
+    S.picks.push(p); names.push(p.name);
+  });
+  toast(`<b>${r.name}</b> confirmed. Created ${plan(names.length)}, one per member: ${names.join(', ')}.`);
+  function plan(n){ return n===1 ? '1 dropship order' : `${n} dropship orders`; }
+}
+function genTracking(carrier){
+  const d = n => Array.from({length:n},()=>Math.floor(Math.random()*10)).join('');
+  const a = n => Array.from({length:n},()=>'ABCDEFGHJKLMNPRSTUVWXYZ0123456789'[Math.floor(Math.random()*33)]).join('');
+  if(carrier==='UPS') return '1Z'+a(6)+'03'+d(8);
+  if(carrier==='FedEx') return d(12);
+  if(carrier==='USPS') return '9400'+d(18);
+  return 'PRO '+d(9);
+}
+function validatePick(p){
+  if(!p.tracking.trim()){ toast('Vendor tracking is required before validating.','err'); return; }
+  p.state = 'done'; p.done = Date.now();
+  const so = soById(p.soId);
+  p.lines.forEach(pl=>{ const l = so.lines.find(x=>x.pid===pl.pid && x.po===p.poId && (x.delivered||0) < x.qty); if(l) l.delivered = (l.delivered||0) + pl.qty; });
+  toast(`<b>${p.name}</b> is done. ${so.name}: ${soDelivery(so)[0]}.`);
+}
+
+/* ---------- navigation ---------- */
+function go(app, screen='list', id=null, filter=null){
+  discardIfEmpty();
+  if(!(app==='sales' && screen==='list')) S.sel = [];
+  S.view = {app, screen, id, filter}; S.menu = null;
+  render(); window.scrollTo({top:0});
+}
+
+/* ---------- views: sales ---------- */
+const soStatus = so => so.state==='sale' ? '<span class="badge ok">Sales Order</span>' : '<span class="badge info">Quotation</span>';
+function rfqCell(so){
+  if(!hasDs(so)) return '';
+  if(pendingDs(so)) return '<span class="badge warn">Awaiting RFQ</span>';
+  return so.poIds.map(id=>rfqById(id).name).join(', ');
+}
+function viewSOList(){
+  const f = S.view.filter;
+  let list = S.sos.slice().reverse();
+  if(f && f.ids) list = list.filter(s=>f.ids.includes(s.id));
+  const n = S.sel.length;
+  const facet = f && f.ids ? 'RFQ sources' : 'My Quotations';
+  const mid = n ? `<div class="selbar"><button class="btn" data-act="clear-sel">${n} selected <span class="muted">✕</span></button>
+      <div class="dropdown"><button class="btn" data-act="toggle-menu" data-menu="actions">${I.gear} Actions</button>${S.menu==='actions'?`<div class="menu">
+        <button data-act="noop">Export</button><button data-act="noop">Archive</button><button data-act="noop">Unarchive</button><button data-act="noop">Duplicate</button><button data-act="noop">Delete</button>
+        <hr><button data-act="noop">Mark Quotation as Sent</button><button data-act="noop">Send an email</button><button data-act="consolidate">Consolidate SO into RFQ</button></div>`:''}</div></div>`
+    : searchBox(facet, f && f.ids ? 'nav-sales' : 'noop');
+  const cp = `<div class="cp"><div class="cp-left"><div class="btn-group"><button class="btn btn-primary" data-act="new-so">New</button><button class="btn btn-primary" data-act="noop" aria-label="More">▾</button></div>
+      <span class="cp-title">Quotations</span><button class="kebab" data-act="noop" aria-label="Options">⋮</button></div>
+    <div class="cp-mid">${mid}</div><div class="cp-right">${viewSwitcher()}</div></div>`;
+  const toConfirm = S.sos.filter(s=>s.state==='draft').length;
+  const toDeliver = S.sos.filter(s=>{ const d = soDelivery(s); return s.state==='sale' && (!d || d[0]!=='Fully Delivered'); }).length;
+  const orders = S.sos.filter(s=>s.state==='sale');
+  const revenue = orders.reduce((a,s)=>a+soUntaxed(s)*(1+TAX),0);
+  const dash = `<div class="dash"><div class="tiles"><div class="tile t1"><b>${toConfirm}</b>To Confirm</div><div class="tile t2"><b>${toDeliver}</b>To Deliver</div><div class="tile t3"><b>0</b>To Invoice</div></div>
+    <div class="stats"><div class="period">${I.cal} Last 7 days ▾</div><div class="k">Sales Orders<b>${orders.length} <span>N/A</span></b></div><div class="k">Sales Revenue<b>${money(revenue)} <span>N/A</span></b></div></div></div>`;
+  const allSel = list.length && list.every(s=>S.sel.includes(s.id));
+  const head = `<thead><tr><th class="cb"><label><input type="checkbox" data-selall ${allSel?'checked':''} aria-label="Select all"></label></th><th>Number</th><th>Order Date</th><th>Customer</th><th>Salesperson</th><th class="center">Dropshipping</th><th>Vendor</th><th class="num">Total</th><th>Status</th><th>RFQ</th></tr></thead>`;
+  if(!S.sos.length){
+    const fake = ['Gemini Furniture','Deco Addict','Azure Interior','Lumber Inc','Ready Mat','Wood Corner','Wendi Baltz','Thomas Passot'];
+    const fv = ['ENGLAND','','KRAVET','FABRICUT','','ENGLAND','HICKORY',''];
+    const rows = fake.map((c,i)=>`<tr><td class="cb"><input type="checkbox" disabled></td><td>REF000${i+1}</td><td>Oct ${20-i}, 10:36 AM</td><td>${c}</td><td>FTS</td><td class="center"><input type="checkbox" disabled ${fv[i]?'checked':''}></td><td>${fv[i]}</td><td class="num">$ ${(1240+i*913).toLocaleString('en-US')}.00</td><td><span class="badge">Quotation</span></td><td></td></tr>`).join('');
+    return cp + dash + `<div class="list sample"><div class="tbl-wrap"><table class="tbl">${head}<tbody aria-hidden="true">${rows}</tbody></table></div>
+      <div class="helper"><div class="art" aria-hidden="true"><div class="paper"></div><div class="paper p2"></div><div class="play"></div><div class="cap">Setup Quotes<br>That Convert</div></div>
+      <h2>Beat competitors with stunning quotations!</h2><p>Boost sales with online payments or signatures, upsells, and a great customer portal.</p></div></div>`;
+  }
+  const rows = list.map(so=>{
+    const sel = S.sel.includes(so.id);
+    return `<tr data-act="open-so" data-id="${so.id}" class="${sel?'selected':''}"><td class="cb"><label><input type="checkbox" data-sel="${so.id}" ${sel?'checked':''} aria-label="Select ${so.name}"></label></td>
+    <td>${so.name}</td><td>${dt(so.date)}</td><td>${esc(so.customer?mem(so.customer).name:'')}</td><td>FTS</td>
+    <td class="center"><input type="checkbox" disabled ${hasDs(so)?'checked':''} aria-label="Dropshipping"></td><td>${esc(soVendors(so).join(', '))}</td>
+    <td class="num">${money(soUntaxed(so)*(1+TAX))}</td><td>${soStatus(so)}</td><td>${rfqCell(so)}</td></tr>`;
+  }).join('');
+  return cp + dash + `<div class="list clickable"><div class="tbl-wrap"><table class="tbl">${head}<tbody>${rows}</tbody></table></div></div>`;
+}
+function vendorCell(l, i, draft){
+  if(!l.pid) return '';
+  if(!isDs(l)) return '<span class="muted">—</span>';
+  const vi = l.vendor ? vinfo(l.pid, l.vendor) : null;
+  const short = vi && vi.onHand < l.qty ? `<div class="warn-txt">Only ${vi.onHand} on hand</div>` : '';
+  if(!draft) return `${esc(ven(l.vendor).short)}${short}`;
+  return `<button class="vendor-btn" data-act="vendor-change" data-i="${i}" title="Change vendor">${l.vendor?esc(ven(l.vendor).short):'<span class="muted">Select vendor</span>'} ${I.pencil}</button>${short}`;
+}
+function viewSOForm(so){
+  if(!so) return viewSOList();
+  const draft = so.state==='draft';
+  const picks = S.picks.filter(p=>p.soId===so.id);
+  const m = so.customer ? mem(so.customer) : null;
+  const smart = `<div class="smart">${so.poIds.length?smartBtn('cart','Purchase',so.poIds.length,'so-purchase',`data-id="${so.id}"`):''}${picks.length?smartBtn('truck','Dropship',picks.length,'so-dropship',`data-id="${so.id}"`):''}</div>`;
+  const custOpts = `<option value=""></option>` + MEMBERS.map(x=>`<option value="${x.id}" ${x.id===so.customer?'selected':''}>${esc(x.name)}</option>`).join('');
+  const prodOpts = sel => `<option value="">Select a product…</option>` + PRODUCTS.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.name)}</option>`).join('');
+  const routeNote = p => p.route==='dropship' ? 'Route: Dropship' : 'Route: Ship from stock';
+  let lines;
+  if(draft){
+    lines = so.lines.map((l,i)=>{ const p = l.pid?prod(l.pid):null; return `<tr>
+      <td><select data-chg="so-line-prod" data-i="${i}" aria-label="Product">${prodOpts(l.pid)}</select>${p?`<div class="small muted">${routeNote(p)}</div>`:''}</td>
+      <td>${vendorCell(l,i,true)}</td>
+      <td class="num"><input type="number" min="1" value="${l.qty}" data-chg="so-line-qty" data-i="${i}" aria-label="Quantity"></td>
+      <td class="num">${p?num(p.price):''}</td><td><span class="tax">6%</span></td><td class="num">${p?money(p.price*l.qty):''}</td>
+      <td><button class="link muted" data-act="so-del-line" data-i="${i}" aria-label="Delete line">${I.trash}</button></td></tr>`; }).join('');
+    lines = `<table class="tbl"><thead><tr><th>Product</th><th>Vendor</th><th class="num">Quantity</th><th class="num">Unit Price</th><th>Taxes</th><th class="num">Amount</th><th></th></tr></thead><tbody>${lines}</tbody></table><div class="addline"><button class="btn-link" data-act="so-add-line">Add a product</button><button class="btn-link" data-act="noop">Add a section</button><button class="btn-link" data-act="noop">Add a note</button></div>`;
+  } else {
+    lines = so.lines.map((l,i)=>{ const p = prod(l.pid); const r = l.po ? rfqById(l.po) : null; return `<tr>
+      <td>${esc(p.name)}<div class="small muted">${routeNote(p)}</div></td><td>${vendorCell(l,i,false)}</td><td class="num">${num(l.qty)}</td><td class="num">${num(l.delivered||0)}</td><td class="num">0.00</td>
+      <td>${r?`<button class="link" data-act="open-rfq" data-id="${r.id}">${r.name}</button>`:isDs(l)?'<span class="badge warn">Awaiting RFQ</span>':'<span class="muted">—</span>'}</td>
+      <td class="num">${num(p.price)}</td><td><span class="tax">6%</span></td><td class="num">${money(p.price*l.qty)}</td></tr>`; }).join('');
+    lines = `<table class="tbl"><thead><tr><th>Product</th><th>Vendor</th><th class="num">Quantity</th><th class="num">Delivered</th><th class="num">Invoiced</th><th>RFQ</th><th class="num">Unit Price</th><th>Taxes</th><th class="num">Amount</th></tr></thead><tbody>${lines}</tbody></table>`;
+  }
+  const un = soUntaxed(so), d = soDelivery(so);
+  return `<div class="cp"><div class="cp-left"><button class="btn btn-primary" data-act="new-so">New</button>
+    <div class="crumbs"><button class="root" data-act="nav-sales">Quotations</button><span class="cur">${so.name} <button class="kebab" data-act="noop" aria-label="Options">⋮</button></span></div></div>
+    <div class="cp-mid">${smart}</div><div></div></div>
+  <div class="actions-bar">${draft?`<button class="btn btn-primary" data-act="noop">Send</button><button class="btn" data-act="noop">Download</button><button class="btn" data-act="so-confirm" data-id="${so.id}">Confirm</button><button class="btn" data-act="noop">Preview</button><button class="btn" data-act="noop">Cancel</button>`
+      :`<button class="btn btn-primary" data-act="noop">Create Invoice</button><button class="btn" data-act="noop">Send</button><button class="btn" data-act="noop">Preview</button><button class="btn" data-act="noop">Cancel</button>`}
+    ${statusbar(['Quotation','Quotation Sent','Sales Order'], draft?'Quotation':'Sales Order')}</div>
+  <div class="sheet"><h1>${so.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Customer</label><div class="val">${draft?`<select data-chg="so-customer" aria-label="Customer">${custOpts}</select>`:esc(m.name)}${m?`<span class="sub">${esc(m.city)}<br>United States</span>`:''}</div></div>
+        <div class="f"><label>Invoice Address</label><div class="val">${m?esc(m.name):''}</div></div>
+        <div class="f"><label>Delivery Address</label><div class="val">${m?esc(m.name):''}</div></div>
+      </div>
+      <div>
+        <div class="f"><label>${draft?'Quotation Date':'Order Date'}<sup title="Creation date of the quotation, or confirmation date of the order">?</sup></label><div class="val">${dt(so.date)}</div></div>
+        <div class="f"><label>Pricelist<sup>?</sup></label><div class="val">USD (USD)</div></div>
+        <div class="f"><label>Payment Terms</label><div class="val muted">Immediate</div></div>
+        <div class="f"><label>Dropshipping<sup title="Checked automatically when the order has at least one product with the Dropship route (read-only)">?</sup></label><div class="val"><input type="checkbox" disabled ${hasDs(so)?'checked':''} aria-label="Dropshipping (read-only)"></div></div>
+        ${d?`<div class="f"><label>Delivery</label><div class="val"><span class="badge ${d[1]}">${d[0]}</span></div></div>`:''}
+      </div>
+    </div>
+    <div class="tabs"><span>Order Lines</span><span class="off">Other Info</span></div>
+    <div class="tbl-wrap">${lines}</div>
+    <div class="totals"><table><tr><td class="muted">Untaxed Amount:</td><td>${money(un)}</td></tr><tr><td class="muted">Tax 6%:</td><td>${money(un*TAX)}</td></tr><tr class="grand"><td>Total:</td><td>${money(un*(1+TAX))}</td></tr></table></div>
+  </div>`;
+}
+
+/* ---------- views: purchase ---------- */
+const rfqStatus = r => r.state==='purchase' ? '<span class="badge ok">Purchase Order</span>' : '<span class="badge info">RFQ</span>';
+function viewRFQList(){
+  const f = S.view.filter;
+  let list = S.rfqs.slice().reverse();
+  if(f && f.ids) list = list.filter(r=>f.ids.includes(r.id));
+  if(f && f.soId) list = list.filter(r=>r.lines.some(l=>l.soId===f.soId));
+  const rows = list.map(r=>{
+    const sos = rfqSoIds(r).map(id=>soById(id).name);
+    return `<tr data-act="open-rfq" data-id="${r.id}"><td>${r.name}</td><td>${esc(ven(r.vendor).name)}</td><td>${sos.length} SO<div class="small muted">${sos.join(', ')}</div></td><td class="num">${r.lines.length}</td>
+    <td>${dt(r.cutoff)}</td><td class="num">${money(rfqTotal(r))}</td><td>${rfqStatus(r)}</td></tr>`;
+  }).join('');
+  const filtered = f && (f.ids || f.soId);
+  return `<div class="cp"><div class="cp-left"><span class="cp-title">Requests for Quotation</span></div><div class="cp-mid">${searchBox(filtered?'Filtered':'', 'nav-purchase')}</div><div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="list clickable">${list.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Vendor</th><th>Source SO</th><th class="num">Lines</th><th>Order Deadline</th><th class="num">Total</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div class="empty"><p>No RFQs yet. Select dropship orders in Quotations, open ⚙ Actions and choose Consolidate SO into RFQ.</p><button class="btn btn-primary" data-act="nav-sales">Go to Quotations</button></div>`}</div>`;
+}
+function viewRFQForm(r){
+  if(!r) return viewRFQList();
+  const open = isOpen(r), soIds = rfqSoIds(r), picks = S.picks.filter(p=>p.poId===r.id);
+  const members = [...new Set(r.lines.map(l=>l.member))];
+  const smart = `<div class="smart">${smartBtn('dollar','Sale',soIds.length,'rfq-sales',`data-id="${r.id}"`)}${picks.length?smartBtn('truck','Dropship',picks.length,'rfq-dropship',`data-id="${r.id}"`):''}</div>`;
+  const banner = open
+    ? `<div class="banner"><b>Consolidating:</b> ${plural(r.lines.length,'line')} from ${plural(soIds.length,'sales order')}, ${plural(members.length,'member')}. This RFQ is never confirmed automatically. You can add more orders for this vendor before the ${dt(r.cutoff)} cut-off.</div>`
+    : `<div class="banner ok"><b>Confirmed</b> on ${dt(r.confirmed)}. Each sales order / member has its own dropship order. The next consolidation for ${ven(r.vendor).short} will create a new RFQ.</div>`;
+  let body = '';
+  soIds.forEach(id=>{
+    const so = soById(id), m = mem(so.customer), pk = picks.find(x=>x.soId===id);
+    body += `<tr class="section"><td colspan="${open?5:6}"><button class="link" data-act="open-so" data-id="${so.id}">${so.name}</button> <span class="sub">ship to ${esc(m.name)}, ${esc(m.city)}</span></td></tr>`;
+    r.lines.filter(l=>l.soId===id).forEach(l=>{
+      const p = prod(l.pid), rec = pk && pk.state==='done' ? l.qty : 0;
+      body += `<tr><td>${esc(p.name)}</td><td>${esc(m.name)}</td><td class="num">${num(l.qty)}</td>${open?'':`<td class="num">${num(rec)}</td>`}<td class="num">${num(l.price)}</td><td class="num">${money(l.price*l.qty)}</td></tr>`;
+    });
+  });
+  return `<div class="cp"><div class="cp-left"><div class="crumbs"><button class="root" data-act="nav-purchase">Requests for Quotation</button><span class="cur">${r.name} <button class="kebab" data-act="noop" aria-label="Options">⋮</button></span></div></div><div class="cp-mid">${smart}</div><div></div></div>
+  <div class="actions-bar">${open?`<button class="btn btn-primary" data-act="noop">Send RFQ</button><button class="btn" data-act="rfq-confirm" data-id="${r.id}">Confirm Order</button><button class="btn" data-act="noop">Print</button><button class="btn" data-act="noop">Cancel</button>`
+      :`<button class="btn" data-act="noop">Upload Bill</button><button class="btn btn-primary" data-act="noop">Send PO</button><button class="btn" data-act="noop">Acknowledge</button><button class="btn" data-act="noop">Print</button>`}
+    ${statusbar(['RFQ','RFQ Sent','Purchase Order'], open?'RFQ':'Purchase Order')}</div>
+  ${banner}
+  <div class="sheet"><p class="kicker">${open?'Request for Quotation':'Purchase Order'}</p><h1>${r.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Vendor<sup>?</sup></label><div class="val">${esc(ven(r.vendor).name)}</div></div>
+        <div class="f"><label>Vendor Reference<sup>?</sup></label><div class="val"></div></div>
+        <div class="f"><label>Currency</label><div class="val">USD</div></div>
+        <div class="f"><label>Consolidated SO</label><div class="val"><span class="badge pri">${soIds.length} SO</span></div></div>
+      </div>
+      <div>
+        <div class="f"><label>${open?'Order Deadline':'Confirmation Date'}<sup>?</sup></label><div class="val">${open?`${dt(r.cutoff)} <span class="small muted">(cut-off)</span>`:dt(r.confirmed)}</div></div>
+        <div class="f"><label>Deliver To<sup>?</sup></label><div class="val">Dropship</div></div>
+        <div class="f"><label>Dropship Address<sup>?</sup></label><div class="val">Per line<span class="sub">${plural(members.length,'member')}</span></div></div>
+        ${open?'':`<div class="f"><label>Receipt Status</label><div class="val">${picks.every(p=>p.state==='done')?'<span class="badge ok">Fully Received</span>':picks.some(p=>p.state==='done')?'<span class="badge warn">Partially Received</span>':'<span class="badge">Not Received</span>'}</div></div>`}
+      </div>
+    </div>
+    <div class="tabs"><span>Products</span><span class="off">Other Info</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th>Ship to (member)</th><th class="num">Quantity</th>${open?'':'<th class="num">Received</th>'}<th class="num">Unit Price</th><th class="num">Amount</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="totals"><table><tr class="grand"><td>Total:</td><td>${money(rfqTotal(r))}</td></tr></table></div>
+  </div>`;
+}
+
+/* ---------- views: dropship ---------- */
+const pickBadge = p => p.state==='done'?'<span class="badge ok">Done</span>':'<span class="badge info">Ready</span>';
+function viewPickList(){
+  const f = S.view.filter;
+  let list = S.picks.slice().reverse();
+  if(f && f.soId) list = list.filter(p=>p.soId===f.soId);
+  if(f && f.poId) list = list.filter(p=>p.poId===f.poId);
+  const rows = list.map(p=>`<tr data-act="open-pick" data-id="${p.id}"><td>${p.name}</td><td>${esc(ven(p.vendor).name)}</td><td>${esc(mem(p.member).name)}<div class="small muted">${esc(mem(p.member).city)}</div></td>
+    <td>${rfqById(p.poId).name}</td><td>${soById(p.soId).name}</td><td>${p.tracking?`${esc(p.carrier)} <span class="small">${esc(p.tracking)}</span>`:'<span class="muted">None yet</span>'}</td><td>${pickBadge(p)}</td></tr>`).join('');
+  return `<div class="cp"><div class="cp-left"><span class="cp-title">Dropship</span></div><div class="cp-mid">${searchBox(f?'Filtered':'', 'nav-pick')}</div><div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="list clickable">${list.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Contact (vendor)</th><th>Ship to</th><th>Purchase</th><th>Sale</th><th>Tracking</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div class="empty"><p>No dropship orders yet. They are created when a PO is confirmed, one per sales order / member.</p><button class="btn btn-primary" data-act="nav-purchase">Go to Purchase</button></div>`}</div>`;
+}
+function viewPickForm(p){
+  if(!p) return viewPickList();
+  const m = mem(p.member), r = rfqById(p.poId), so = soById(p.soId), done = p.state==='done';
+  const carriers = ['','UPS','FedEx','USPS','Freight / LTL'].map(c=>`<option value="${c}" ${c===p.carrier?'selected':''}>${c||'Select a carrier…'}</option>`).join('');
+  const has = !!p.tracking.trim();
+  const ops = p.lines.map(l=>`<tr><td>${esc(prod(l.pid).name)}</td><td class="num">${num(l.qty)}</td><td class="num">${num(l.qty)}</td></tr>`).join('');
+  return `<div class="cp"><div class="cp-left"><div class="crumbs"><button class="root" data-act="nav-pick">Dropship</button><span class="cur">${p.name}</span></div></div>
+    <div class="cp-mid"><div class="smart">${smartBtn('cart','Purchase',r.name,'open-rfq',`data-id="${r.id}"`)}${smartBtn('dollar','Sale',so.name,'open-so',`data-id="${so.id}"`)}</div></div><div></div></div>
+  <div class="actions-bar">${done?`<button class="btn" data-act="noop">Print</button><button class="btn" data-act="noop">Return</button>`
+      :`<button class="btn btn-primary" id="validateBtn" data-act="pick-validate" data-id="${p.id}" ${has?'':'disabled'}>Validate</button><button class="btn" data-act="noop">Print</button><button class="btn" data-act="noop">Cancel</button>`}
+    ${statusbar(['Draft','Waiting','Ready','Done'], done?'Done':'Ready')}</div>
+  <div class="sheet"><h1>${p.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Contact</label><div class="val">${esc(ven(p.vendor).name)}</div></div>
+        <div class="f"><label>Operation Type</label><div class="val">Dropship</div></div>
+        <div class="f"><label>Source Location</label><div class="val">Vendors</div></div>
+        <div class="f"><label>Destination</label><div class="val">Customers<span class="sub">${esc(m.name)}, ${esc(m.city)}</span></div></div>
+      </div>
+      <div>
+        <div class="f"><label>Scheduled Date</label><div class="val">${dt(p.scheduled)}</div></div>
+        ${done?`<div class="f"><label>Effective Date</label><div class="val">${dt(p.done)}</div></div>`:''}
+        <div class="f"><label>Source Document</label><div class="val">${r.name} <span class="muted">/</span> ${so.name}</div></div>
+      </div>
+    </div>
+    <div class="trackbox"><h3>Vendor tracking</h3>
+      ${done?`<div>${esc(p.carrier)}: <b>${esc(p.tracking)}</b></div>`:`
+      <div class="row">
+        <div><label for="car">Carrier</label><select id="car" data-chg="pick-carrier" data-id="${p.id}">${carriers}</select></div>
+        <div><label for="trk">Tracking reference</label><input id="trk" data-inp="pick-tracking" data-id="${p.id}" value="${esc(p.tracking)}" placeholder="Tracking number from the vendor"></div>
+        <button class="btn" data-act="pick-sim" data-id="${p.id}">Simulate vendor tracking</button>
+      </div>
+      <div class="hint ${has?'ok':''}" id="trkHint">${has?'Tracking received. Ready to validate.':'Vendor tracking is required before you can validate.'}</div>`}
+    </div>
+    <div class="tabs"><span>Operations</span><span class="off">Additional Info</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th class="num">Demand</th><th class="num">Quantity</th></tr></thead><tbody>${ops}</tbody></table></div>
+  </div>`;
+}
+
+/* ---------- modal ---------- */
+function openModal(title, body, footer, size=''){
+  document.getElementById('modal').innerHTML = `<div class="backdrop" data-act="modal-close"><div class="modal ${size}" role="dialog" aria-modal="true" aria-labelledby="mh">
+    <header><span id="mh">${title}</span><button data-act="modal-x" aria-label="Close">×</button></header><div class="body">${body}</div><footer>${footer}</footer></div></div>`;
+  const b = document.querySelector('.modal footer .btn-primary'); if(b) b.focus();
+}
+const closeModal = () => { document.getElementById('modal').innerHTML = ''; S.vpick = null; };
+
+function openVendorPicker(i, pid){
+  const so = soById(S.view.id), l = so.lines[i], p = prod(pid), qty = l.qty;
+  const ranked = p.vendors.slice().sort((a,b)=> ((b.onHand>=qty)-(a.onHand>=qty)) || a.cost-b.cost);
+  const current = l.pid===pid && l.vendor ? l.vendor : (ranked.find(x=>x.onHand>=qty) || ranked.slice().sort((a,b)=>b.onHand-a.onHand)[0]).v;
+  S.vpick = {i, pid, choice:current};
+  const avail = x => x.onHand===0 ? '<span class="badge danger">Out of stock</span>' : x.onHand < qty ? '<span class="badge warn">Not enough stock</span>' : '<span class="badge ok">Available</span>';
+  const rows = p.vendors.map(x=>`<tr class="${x.v===current?'on':''}" data-act="vendor-row" data-v="${x.v}">
+    <td><input type="radio" name="vsel" value="${x.v}" ${x.v===current?'checked':''} aria-label="${esc(ven(x.v).name)}"></td>
+    <td>${esc(ven(x.v).name)}</td><td class="num">${x.onHand}</td><td class="num">${num(x.cost)}</td><td class="num">${plural(x.lead,'day')}</td><td>${avail(x)}</td></tr>`).join('');
+  openModal('Select Vendor',
+    `<p><b>${esc(p.name)}</b><br><span class="muted">Requested quantity: ${qty}. This product is available from ${plural(p.vendors.length,'vendor')}.</span></p>
+     <div class="tbl-wrap"><table class="tbl vtbl"><thead><tr><th></th><th>Vendor</th><th class="num">On Hand at Vendor</th><th class="num">Unit Cost</th><th class="num">Lead Time</th><th>Availability</th></tr></thead><tbody>${rows}</tbody></table></div>
+     <p class="small muted" style="margin-top:10px">On hand is the vendor's available stock for this product. The selected vendor decides which RFQ this line is consolidated into.</p>`,
+    `<button class="btn btn-primary" data-act="vendor-select">Select</button><button class="btn" data-act="modal-x">Discard</button>`);
+}
+function openConsolidate(){
+  const plan = planConsolidation(S.sel);
+  const names = arr => arr.map(s=>s.name).join(', ');
+  const block = msg => openModal('Invalid Operation', msg, `<button class="btn btn-primary" data-act="modal-x">Close</button>`, 'sm');
+  if(plan.noCustomer.length){ block(`<p>${names(plan.noCustomer)} has no customer. Set a customer before consolidating.</p>`); return; }
+  if(plan.noVendor.length){ block(`<p>${names(plan.noVendor)} has dropship lines without a vendor. Select a vendor on every dropship line first.</p>`); return; }
+  if(!plan.valid.length){
+    const why = [];
+    if(plan.noDs.length) why.push(`${names(plan.noDs)}: no dropship products.`);
+    if(plan.done.length) why.push(`${names(plan.done)}: already consolidated into an RFQ.`);
+    block(`<p>None of the selected orders need to be consolidated.</p><ul class="notes">${why.map(w=>`<li>${w}</li>`).join('')}</ul>`); return;
+  }
+  const rows = plan.groups.map(g=>`<tr><td>${esc(ven(g.vendor).name)}</td>
+    <td>${g.rfq?`${g.rfq.name} <span class="badge pri">Add to draft RFQ</span>`:'<span class="badge info">New RFQ</span>'}</td>
+    <td>${g.sos.map(s=>`${s.name}<div class="small muted">${esc(mem(s.customer).name)}</div>`).join('')}</td><td class="num">${g.lines.length}</td>
+    <td class="num">${money(g.lines.reduce((a,x)=>a+vinfo(x.l.pid,x.l.vendor).cost*x.l.qty,0))}</td></tr>`).join('');
+  const notes = [];
+  if(plan.toConfirm.length) notes.push(`${names(plan.toConfirm)} ${plan.toConfirm.length===1?'is a quotation and':'are quotations and'} will be confirmed during consolidation.`);
+  if(plan.noDs.length) notes.push(`${names(plan.noDs)} ${plan.noDs.length===1?'has':'have'} no dropship products and will be skipped.`);
+  if(plan.done.length) notes.push(`${names(plan.done)} ${plan.done.length===1?'was':'were'} already consolidated and will be skipped.`);
+  if(plan.valid.some(s=>s.lines.some(l=>l.pid && !isDs(l)))) notes.push('Non-dropship lines are not added to the RFQ.');
+  openModal('Consolidate SO into RFQ',
+    `<p>Dropship lines from ${plural(plan.valid.length,'sales order')} will be grouped by the vendor selected on each line. Every PO line keeps its link to the SO line and the member's delivery address. RFQs stay in draft and are never confirmed automatically.</p>
+     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Vendor</th><th>RFQ</th><th>Sales Orders</th><th class="num">Lines</th><th class="num">Total (cost)</th></tr></thead><tbody>${rows}</tbody></table></div>
+     ${notes.length?`<ul class="notes">${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`:''}`,
+    `<button class="btn btn-primary" data-act="consolidate-go">Consolidate</button><button class="btn" data-act="modal-x">Discard</button>`);
+}
+function openReadyModal(r){
+  openModal('Ready to send?', `<p>${r.name} for ${esc(ven(r.vendor).name)}</p>
+    <dl><dt>Consolidated</dt><dd>${plural(r.lines.length,'line')}, ${plural(rfqSoIds(r).length,'sales order')}</dd><dt>Cut-off</dt><dd>${dt(r.cutoff)}</dd></dl>
+    <div class="banner" style="margin:0">Confirming sends the PO to the vendor and creates a separate dropship order for each member. If the cut-off hasn't passed, you can wait for more orders from this vendor.</div>`,
+    `<button class="btn btn-primary" data-act="modal-confirm" data-id="${r.id}">Confirm PO</button><button class="btn" data-act="modal-wait">Wait for more orders</button>`, 'sm');
+}
+
+/* ---------- render ---------- */
+function render(){
+  const v = S.view; let html;
+  if(v.app==='sales') html = v.screen==='form' ? viewSOForm(soById(v.id)) : viewSOList();
+  else if(v.app==='purchase') html = v.screen==='form' ? viewRFQForm(rfqById(v.id)) : viewRFQList();
+  else html = v.screen==='form' ? viewPickForm(pickById(v.id)) : viewPickList();
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('topbar').innerHTML = viewTopbar();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e=>{
+  if(e.target.closest('td.cb, th.cb')) return;            // list checkboxes are handled by the change event
+  const el = e.target.closest('[data-act]');
+  if(S.menu && !e.target.closest('.dropdown')){ S.menu = null; if(!el){ render(); return; } }
+  if(!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  switch(a){
+    case 'none': break;
+    case 'nav-sales': go('sales'); break;
+    case 'nav-purchase': go('purchase'); break;
+    case 'nav-pick': go('pick'); break;
+    case 'toggle-menu': S.menu = S.menu===el.dataset.menu ? null : el.dataset.menu; render(); break;
+    case 'new-so': { discardIfEmpty(); const so = newSO(); S.view = {app:'sales',screen:'form',id:so.id,filter:null}; S.sel=[]; S.menu=null; render(); window.scrollTo({top:0}); break; }
+    case 'open-so': go('sales','form',id); break;
+    case 'open-rfq': go('purchase','form',id); break;
+    case 'open-pick': go('pick','form',id); break;
+    case 'clear-sel': S.sel = []; render(); break;
+    case 'consolidate': S.menu = null; render(); openConsolidate(); break;
+    case 'consolidate-go': doConsolidate(S.sel.slice()); break;
+    case 'so-add-line': { const so = soById(S.view.id); so.lines.push(newLine()); render(); break; }
+    case 'so-del-line': { const so = soById(S.view.id); so.lines.splice(+el.dataset.i,1); if(!so.lines.length) so.lines.push(newLine()); render(); break; }
+    case 'so-confirm': confirmSO(soById(id)); render(); break;
+    case 'vendor-change': { const l = soById(S.view.id).lines[+el.dataset.i]; openVendorPicker(+el.dataset.i, l.pid); break; }
+    case 'vendor-row': {
+      S.vpick.choice = el.dataset.v;
+      document.querySelectorAll('.vtbl tbody tr').forEach(tr=>{ const on = tr.dataset.v===el.dataset.v; tr.classList.toggle('on', on); tr.querySelector('input').checked = on; });
+      break;
+    }
+    case 'vendor-select': {
+      const vp = S.vpick, l = soById(S.view.id).lines[vp.i];
+      l.pid = vp.pid; l.vendor = vp.choice; closeModal(); render(); break;
+    }
+    case 'so-purchase': { const so = soById(id); so.poIds.length===1 ? go('purchase','form',so.poIds[0]) : go('purchase','list',null,{soId:id}); break; }
+    case 'so-dropship': { const ps = S.picks.filter(p=>p.soId===id); ps.length===1 ? go('pick','form',ps[0].id) : go('pick','list',null,{soId:id}); break; }
+    case 'rfq-sales': { const ids = rfqSoIds(rfqById(id)); ids.length===1 ? go('sales','form',ids[0]) : go('sales','list',null,{ids}); break; }
+    case 'rfq-dropship': go('pick','list',null,{poId:id}); break;
+    case 'rfq-confirm': openReadyModal(rfqById(id)); break;
+    case 'modal-close': if(e.target===el){ closeModal(); render(); } break;
+    case 'modal-x': closeModal(); render(); break;
+    case 'modal-wait': closeModal(); toast('The RFQ stays in draft. You can still add orders for this vendor.','info'); break;
+    case 'modal-confirm': closeModal(); confirmPO(rfqById(id)); render(); break;
+    case 'pick-sim': { const p = pickById(id); p.carrier = p.carrier || ['UPS','FedEx','Freight / LTL'][Math.floor(Math.random()*3)]; p.tracking = genTracking(p.carrier); render(); break; }
+    case 'pick-validate': validatePick(pickById(id)); render(); break;
+    case 'noop': toast('This button is outside the scope of this mockup.','info'); break;
+  }
+});
+document.addEventListener('change', e=>{
+  const el = e.target;
+  if(el.matches('[data-sel]')){ const id = el.dataset.sel; S.sel = el.checked ? [...new Set([...S.sel,id])] : S.sel.filter(x=>x!==id); S.menu=null; render(); return; }
+  if(el.matches('[data-selall]')){
+    const f = S.view.filter; let list = S.sos; if(f && f.ids) list = list.filter(s=>f.ids.includes(s.id));
+    S.sel = el.checked ? list.map(s=>s.id) : []; S.menu=null; render(); return;
+  }
+  if(el.name==='vsel'){ S.vpick.choice = el.value; document.querySelectorAll('.vtbl tbody tr').forEach(tr=>tr.classList.toggle('on', tr.dataset.v===el.value)); return; }
+  const a = el.dataset.chg; if(!a) return;
+  if(a==='so-line-prod'){
+    const i = +el.dataset.i, l = soById(S.view.id).lines[i], pid = el.value;
+    if(pid && prod(pid).route==='dropship'){ render(); openVendorPicker(i, pid); return; }   // vendor chosen in the picker
+    l.pid = pid; l.vendor = null;
+  }
+  if(a==='so-customer'){ soById(S.view.id).customer = el.value; }
+  if(a==='so-line-qty'){ soById(S.view.id).lines[+el.dataset.i].qty = Math.max(1, parseInt(el.value)||1); }
+  if(a==='pick-carrier'){ pickById(el.dataset.id).carrier = el.value; }
+  render();
+});
+document.addEventListener('input', e=>{
+  const el = e.target; if(el.dataset.inp!=='pick-tracking') return;
+  const p = pickById(el.dataset.id); p.tracking = el.value;
+  const has = !!el.value.trim(), b = document.getElementById('validateBtn'), h = document.getElementById('trkHint');
+  if(b) b.disabled = !has;
+  if(h){ h.className = 'hint' + (has?' ok':''); h.textContent = has ? 'Tracking received. Ready to validate.' : 'Vendor tracking is required before you can validate.'; }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(document.querySelector('.backdrop')){ closeModal(); render(); } if(S.menu){ S.menu=null; render(); } } });
+
+render();
+</script>
+</body>
+</html>
